@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #Variables globales
 export RESOURCE_GROUP=sonarqube-rg
 export LOCATION=eastus
@@ -130,7 +132,6 @@ az container create \
     --azure-file-volume-mount-path "/opt/sonarqube/logs" \
     --azure-file-volume-share-name "conf" \
     --azure-file-volume-mount-path "/opt/sonarqube/conf" \
-    --environment-variables null \
     --secure-environment-variables \
         SONAR_JDBC_USERNAME="$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name "sonarq-sa-username" --query value -o tsv)" \
         SONAR_JDBC_PASSWORD="$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name "sonarq-sa-password" --query value -o tsv)" \
