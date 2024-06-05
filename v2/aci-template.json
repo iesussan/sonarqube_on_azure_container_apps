@@ -1,0 +1,130 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+      {
+        "type": "Microsoft.ContainerInstance/containerGroups",
+        "apiVersion": "2021-03-01",
+        "name": "sonarqube-server",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "containers": [
+            {
+              "name": "sonarqube-server",
+              "properties": {
+                "image": "sonarqube:lts-community",
+                "ports": [
+                    {
+                    "protocol": "TCP",
+                    "port": 9000
+                    }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": 2,
+                    "memoryInGB": 8
+                  }
+                },
+                "environmentVariables": [
+                  {
+                    "name": "SONAR_JDBC_USERNAME",
+                    "value": "[parameters('sonarJdbcUsername')]"
+                  },
+                  {
+                    "name": "SONAR_JDBC_PASSWORD",
+                    "value": "[parameters('sonarJdbcPassword')]"
+                  },
+                  {
+                    "name": "SONAR_JDBC_URL",
+                    "value": "[parameters('sonarJdbcUrl')]"
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "volume-data",
+                    "mountPath": "/opt/sonarqube/data"
+                  },
+                  {
+                    "name": "volume-extensions",
+                    "mountPath": "/opt/sonarqube/extensions"
+                  },
+                  {
+                    "name": "volume-logs",
+                    "mountPath": "/opt/sonarqube/logs"
+                  },
+                  {
+                    "name": "volume-conf",
+                    "mountPath": "/opt/sonarqube/conf"
+                  }
+                ]
+              }
+            }
+          ],
+        "osType": "Linux",
+        "ipAddress": {
+          "type": "Public",
+          "ports": [
+            {
+              "protocol": "TCP",
+              "port": 9000
+            }
+          ],
+          "dnsNameLabel": "sonarqubeoci"
+        },
+          "restartPolicy": "Always",
+          "volumes": [
+            {
+              "name": "volume-data",
+              "azureFile": {
+                "shareName": "data",
+                "storageAccountName": "[parameters('storageAccountName')]",
+                "storageAccountKey": "[parameters('storageAccountKey')]"
+              }
+            },
+            {
+              "name": "volume-extensions",
+              "azureFile": {
+                "shareName": "extensions",
+                "storageAccountName": "[parameters('storageAccountName')]",
+                "storageAccountKey": "[parameters('storageAccountKey')]"
+              }
+            },
+            {
+              "name": "volume-logs",
+              "azureFile": {
+                "shareName": "logs",
+                "storageAccountName": "[parameters('storageAccountName')]",
+                "storageAccountKey": "[parameters('storageAccountKey')]"
+              }
+            },
+            {
+              "name": "volume-conf",
+              "azureFile": {
+                "shareName": "conf",
+                "storageAccountName": "[parameters('storageAccountName')]",
+                "storageAccountKey": "[parameters('storageAccountKey')]"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "parameters": {
+      "storageAccountName": {
+        "type": "string"
+      },
+      "storageAccountKey": {
+        "type": "string"
+      },
+      "sonarJdbcUsername": {
+        "type": "string"
+      },
+      "sonarJdbcPassword": {
+        "type": "string"
+      },
+      "sonarJdbcUrl": {
+        "type": "string"
+      }
+    }
+  }
+  
